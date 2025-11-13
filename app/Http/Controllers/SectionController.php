@@ -10,12 +10,9 @@ class SectionController extends Controller
 {
     public function index(Request $request)
     {
-        // $records = Section::all();
-
-        $perPage=2;
         $perPage = $request->get('per_page', 10);
 
-        $records = Section::orderBy('id', 'desc')->paginate($perPage);
+        $records = Section::paginate($perPage);
 
         return response()->json($records);
     }

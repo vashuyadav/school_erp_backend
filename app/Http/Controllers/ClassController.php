@@ -9,9 +9,14 @@ use Illuminate\Support\Facades\Log;
 
 class ClassController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $records = SchoolClass::all();
+        $status = $request->status;
+        $records = SchoolClass::when($status !== null && $status !== '', function ($query) use ($status) {
+            $query->where('is_active', $status);
+        })
+        ->get();
+        // $records = SchoolClass::where('is_active', $status)->get();
         // $records = SchoolClass::orderBy('id', 'DESC')->get();
 
         return response()->json($records);
@@ -22,12 +27,12 @@ class ClassController extends Controller
     {
         // Validate request data
         $validatedData = $request->validate([
-            'class_name' => 'required|string|max:255|regex:/^[A-Za-z0-9\s]+$/',            
+            'class_name' => 'required|string|max:255|regex:/^[A-Za-z0-9\s]+$/',
             'is_active'  => 'boolean',
         ]);
 
         $addData = SchoolClass::create($validatedData);
-        
+
         return response()->json([
             'status' => true,
             'message' => 'Class created successfully',
@@ -68,6 +73,6 @@ class ClassController extends Controller
         $record = SchoolClass::findOrFail($id);
         $record->delete();
 
-        return response()->json(['status' => true,'message' => 'Class deleted successfully']);
+        return response()->json(['status' => true, 'message' => 'Class deleted successfully']);
     }
 }
